@@ -23,6 +23,7 @@ import {
   Wallet,
   Tags,
   Plus,
+  RefreshCw,
 } from "lucide-react";
 import { usePace } from "../app/context";
 import { AsyncForm, Field, Sheet, textValue, yen } from "../components/UI";
@@ -42,7 +43,7 @@ import type { Editor } from "./Management";
 import { SecuritySettings } from "./Security";
 
 export function Settings() {
-  const { data, today, run, toast } = usePace();
+  const { data, today, run, toast, appUpdate } = usePace();
   const [editor, setEditor] = useState<Editor | null>(null);
   const [panel, setPanel] = useState("");
   const [ready, setReady] = useState<{ blob: Blob; name: string } | null>(null);
@@ -162,6 +163,38 @@ export function Settings() {
         })}
         {row(<HelpCircle />, `${APP_NAME}について`, () => setPanel("about"))}
       </div>
+      <h2 className="settings-label">アプリの更新</h2>
+      <div className="surface settings-group">
+        <button
+          className="settings-row"
+          disabled={appUpdate.busy}
+          onClick={() =>
+            void (appUpdate.available
+              ? appUpdate.apply().then((message) => {
+                  if (message) toast(message);
+                })
+              : appUpdate.check())
+          }
+        >
+          <span className="settings-icon">
+            <RefreshCw className={appUpdate.busy ? "spin" : ""} />
+          </span>
+          <span>
+            <b>
+              {appUpdate.busy
+                ? "処理しています…"
+                : appUpdate.available
+                  ? "更新を適用"
+                  : "更新を確認"}
+            </b>
+            <small>現在のバージョン {APP_VERSION}</small>
+          </span>
+          <ChevronRight size={17} />
+        </button>
+      </div>
+      <p className="page-footnote" role="status">
+        {appUpdate.message}
+      </p>
       <p className="page-footnote">
         {APP_NAME} {APP_VERSION} · 自分のペースで、お金を整える。
       </p>

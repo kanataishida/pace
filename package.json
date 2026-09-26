@@ -1,6 +1,6 @@
 {
   "name": "pace-local-finance",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc -b",
     "test:ui": "node scripts/qa-flows.mjs && node scripts/qa-layout.mjs && node scripts/qa-webauthn.mjs",
-    "test:offline": "node scripts/qa-offline.mjs"
+    "test:offline": "node scripts/qa-offline.mjs",
+    "test:update": "node scripts/qa-update.mjs"
   },
   "dependencies": {
     "react": "19.3.0",

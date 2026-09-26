@@ -28,7 +28,7 @@ import {
   WifiOff,
   X,
 } from "lucide-react";
-import { useRegisterSW } from "virtual:pwa-register/react";
+import { useAppUpdate } from "../hooks/useAppUpdate";
 import { useAppData } from "../hooks/useAppData";
 import { computeFinance } from "../domain/finance";
 import { todayJST } from "../domain/dates";
@@ -120,14 +120,7 @@ function Application() {
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lockTimeout = useRef(60);
   lockTimeout.current = data?.settings.lockAfterSeconds ?? 60;
-  const {
-    needRefresh: [needRefresh, setNeedRefresh],
-    updateServiceWorker,
-  } = useRegisterSW({
-    onRegisterError: () => {
-      /* offline first visit can retry next launch */
-    },
-  });
+  const appUpdate = useAppUpdate();
   const toast = useCallback((message: string, undo?: () => Promise<void>) => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
     setNotice({ message, undo });
@@ -263,7 +256,7 @@ function Application() {
     );
   return (
     <AppContext.Provider
-      value={{ data, finance, today, openExpense, toast, run }}
+      value={{ data, finance, today, openExpense, toast, run, appUpdate }}
     >
       {hidden && (
         <div className="privacy-cover">
@@ -281,16 +274,20 @@ function Application() {
               オフライン · この端末に保存できます
             </div>
           )}
-          {needRefresh && (
+          {appUpdate.showBanner && (
             <div className="update-banner">
               <span>{APP_NAME}の更新があります</span>
-              <button onClick={() => void updateServiceWorker(true)}>
-                更新する
-              </button>
               <button
-                aria-label="更新を後で行う"
-                onClick={() => setNeedRefresh(false)}
+                disabled={appUpdate.busy}
+                onClick={() =>
+                  void appUpdate.apply().then((message) => {
+                    if (message) toast(message);
+                  })
+                }
               >
+                {appUpdate.busy ? "更新中…" : "更新する"}
+              </button>
+              <button aria-label="更新を後で行う" onClick={appUpdate.dismiss}>
                 <X size={16} />
               </button>
             </div>

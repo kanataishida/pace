@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 import type { AppData, Expense } from "../types";
 import type { computeFinance } from "../domain/finance";
+import type { useAppUpdate } from "../hooks/useAppUpdate";
 export interface AppContextValue {
   data: AppData;
   finance: ReturnType<typeof computeFinance>;
@@ -8,6 +9,7 @@ export interface AppContextValue {
   openExpense: (expense?: Expense) => void;
   toast: (message: string, undo?: () => Promise<void>) => void;
   run: (action: () => Promise<void>, success?: string) => Promise<void>;
+  appUpdate: ReturnType<typeof useAppUpdate>;
 }
 export const AppContext = createContext<AppContextValue | null>(null);
 export function usePace() {
